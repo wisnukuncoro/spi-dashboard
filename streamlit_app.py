@@ -1,11 +1,13 @@
-#######################
+##################
 # Import libraries
 import streamlit as st
+import numpy as np
 import pandas as pd
 import altair as alt
 import plotly.express as px
-
-#######################
+  
+  
+####################
 # Page configuration
 st.set_page_config(
     page_title="SPI Dashboard",
@@ -15,7 +17,8 @@ st.set_page_config(
 
 alt.themes.enable("dark")
 
-#######################
+
+#############
 # CSS styling
 st.markdown("""
 <style>
@@ -94,8 +97,8 @@ def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
             y=alt.Y(f'{input_y}:O', axis=alt.Axis(title="Year", titleFontSize=18, titlePadding=15, titleFontWeight=900, labelAngle=0)),
             x=alt.X(f'{input_x}:O', axis=alt.Axis(title="", titleFontSize=18, titlePadding=15, titleFontWeight=900)),
             color=alt.Color(f'max({input_color}):Q',
-                             legend=None,
-                             scale=alt.Scale(scheme=input_color_theme)),
+                            legend=None,
+                            scale=alt.Scale(scheme=input_color_theme)),
             stroke=alt.value('black'),
             strokeWidth=alt.value(0.25),
         ).properties(width=900
@@ -109,10 +112,10 @@ def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
 # Choropleth map
 def make_choropleth(input_df, input_id, input_column, input_color_theme):
     choropleth = px.choropleth(input_df, locations=input_id, color=input_column, locationmode="USA-states",
-                               color_continuous_scale=input_color_theme,
-                               range_color=(0, max(df_selected_year.population)),
-                               scope="usa",
-                               labels={'population':'Population'}
+                              color_continuous_scale=input_color_theme,
+                              range_color=(0, max(df_selected_year.population)),
+                              scope="usa",
+                              labels={'population':'Population'}
                               )
     choropleth.update_layout(
         template='plotly_dark',
@@ -182,81 +185,183 @@ def calculate_population_difference(input_df, input_year):
   selected_year_data['population_difference'] = selected_year_data.population.sub(previous_year_data.population, fill_value=0)
   return pd.concat([selected_year_data.states, selected_year_data.id, selected_year_data.population, selected_year_data.population_difference], axis=1).sort_values(by="population_difference", ascending=False)
 
-
+def load_data(sheet, cols, rows, nrows):
+        uploaded_file = st.file_uploader("Upload File Excel File", type="xlsx")
+        if uploaded_file is not None:
+            data = pd.read_excel(uploaded_file, sheet_name=sheet, usecols=cols, skiprows=rows, nrows=nrows)
+            return data
+        return None
+      
+branch_list = pd.read_csv('data/branch_list.csv', delimiter=';')
+branch_region_1 = pd.read_csv('data/branch_region_1.csv', delimiter=';')
+branch_region_2 = pd.read_csv('data/branch_region_2.csv', delimiter=';')
+branch_region_3 = pd.read_csv('data/branch_region_3.csv', delimiter=';')
+branch_region_4 = pd.read_csv('data/branch_region_4.csv', delimiter=';')
+      
 #######################
 # Dashboard Main Panel
 
-st.title("JUMLAH SISWA")
+jumlah_siswa = load_data('Jumlah Siswa', 'C:CR', 3, 69)
 
-year_list = list(df_reshaped.year.unique())[::-1]
+if jumlah_siswa is not None:
+  
+    jumlah_siswa = pd.concat([jumlah_siswa.iloc[:,0], jumlah_siswa.iloc[:,79:]], axis=1)
+    jumlah_siswa.columns = ['kode_cabang', '1_smt_24', '2_smt_24', '3_smt_24', 'intensif', 'beasiswa', 'total_reg_24', 'private_24', 'kapasitas_24', 'percent_24', '1_smt_25', '2_smt_25', '3_smt_25', 'total_reg_25', 'kapasitas_25', 'percent_25']
+
+    jumlah_siswa = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_list['kode_cabang'])]
+
+    jumlah_siswa = pd.merge(jumlah_siswa, branch_list, on='kode_cabang')
+    jumlah_siswa = jumlah_siswa.fillna(0)
+    jumlah_siswa_wilayah_1 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_1['kode_cabang'])]
+    jumlah_siswa_wilayah_2 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_2['kode_cabang'])]
+    jumlah_siswa_wilayah_3 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_3['kode_cabang'])]
+    jumlah_siswa_wilayah_4 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_4['kode_cabang'])]
+
+    st.markdown("#### Tabel Jumlah Siswa")
     
-selected_year = st.selectbox('Pilih Tahun Ajaran', year_list)
-df_selected_year = df_reshaped[df_reshaped.year == selected_year]
-df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
-
-color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
-selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
+    st.write(jumlah_siswa_wilayah_1)
     
-col = st.columns((1.5, 4.5, 2), gap='medium')
+    year_list = list(df_reshaped.year.unique())[::-1]
+        
+    selected_year = st.selectbox('Pilih Tahun Ajaran', year_list)
+    df_selected_year = df_reshaped[df_reshaped.year == selected_year]
+    df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
 
-with col[0]:
-    st.markdown('#### Jumlah Siswa')
-
-    df_population_difference_sorted = calculate_population_difference(df_reshaped, selected_year)
-
-    if selected_year > 2010:
-        first_state_name = df_population_difference_sorted.states.iloc[0]
-        first_state_population = format_number(df_population_difference_sorted.population.iloc[0])
-        first_state_delta = format_number(df_population_difference_sorted.population_difference.iloc[0])
-    else:
-        first_state_name = '-'
-        first_state_population = '-'
-        first_state_delta = ''
-    st.metric(label=first_state_name, value=first_state_population, delta=first_state_delta)
-
-    if selected_year > 2010:
-        last_state_name = df_population_difference_sorted.states.iloc[-1]
-        last_state_population = format_number(df_population_difference_sorted.population.iloc[-1])   
-        last_state_delta = format_number(df_population_difference_sorted.population_difference.iloc[-1])   
-    else:
-        last_state_name = '-'
-        last_state_population = '-'
-        last_state_delta = ''
-    st.metric(label=last_state_name, value=last_state_population, delta=last_state_delta)
-
-
-with col[1]:
+    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
+    selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
+    
     st.markdown('#### Jumlah Siswa di Seluruh Cabang Edulab')
-    
-    choropleth = make_choropleth(df_selected_year, 'states_code', 'population', selected_color_theme)
-    st.plotly_chart(choropleth, use_container_width=True)
-    
-    heatmap = make_heatmap(df_reshaped, 'year', 'states', 'population', selected_color_theme)
-    st.altair_chart(heatmap, use_container_width=True)
-    
+        
+    col = st.columns(2, gap='medium')
 
-with col[2]:
-    st.markdown('#### Top Cabang')
+    with col[0]:
+                
+        # total_ta_24 = int(jumlah_siswa['total_reg_24'].sum())
+        # total_ta_25 = int(jumlah_siswa['total_reg_25'].sum())
 
-    st.dataframe(df_selected_year_sorted,
-                 column_order=("states", "population"),
-                 hide_index=True,
-                 width=None,
-                 column_config={
-                    "states": st.column_config.TextColumn(
-                        "Cabang",
-                    ),
-                    "population": st.column_config.ProgressColumn(
-                        "Jumlah Siswa",
-                        format="%f",
-                        min_value=0,
-                        max_value=max(df_selected_year_sorted.population),
-                     )}
-                 )
-    
-    with st.expander('About', expanded=True):
-        st.write('''
-            - Data: [U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html).
-            - :orange[**Gains/Losses**]: states with high inbound/ outbound migration for selected year
-            - :orange[**States Migration**]: percentage of states with annual inbound/ outbound migration > 50,000
-            ''')
+        # st.metric(label='Total Siswa Tahun Ajaran 2024/2025', value=total_ta_24)
+
+        # st.metric(label='Total Siswa Tahun Ajaran 2025/2026', value=total_ta_25)
+        
+        fig = px.bar(jumlah_siswa_wilayah_2, 
+             y='nama_cabang', 
+             x='total_reg_24', 
+             title='Jumlah Siswa di Cabang Wilayah Jawa Barat',
+             labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+             text='total_reg_24',)  # Menambahkan label pada setiap batang
+
+        # Menampilkan grafik di Streamlit
+        st.plotly_chart(fig)
+
+
+    with col[1]:
+               
+        # choropleth = make_choropleth(df_selected_year, 'states_code', 'population', selected_color_theme)
+        # st.plotly_chart(choropleth, use_container_width=True)
+        
+        fig = px.bar(jumlah_siswa_wilayah_1, 
+             y='nama_cabang', 
+             x='total_reg_24', 
+             title='Jumlah Siswa di Cabang Wilayah Sumatera & Kalimantan',
+             labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+             text='total_reg_24')  # Menambahkan label pada setiap batang
+
+        # Menampilkan grafik di Streamlit
+        st.plotly_chart(fig)
+        
+        # fig = px.bar(jumlah_siswa_wilayah_2, 
+        #      y='nama_cabang', 
+        #      x='total_reg_24', 
+        #      title='Total Pendaftar per Cabang',
+        #      labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+        #      text='total_reg_24',)  # Menambahkan label pada setiap batang
+
+        # # Menampilkan grafik di Streamlit
+        # st.plotly_chart(fig)
+        
+        # fig = px.bar(jumlah_siswa_wilayah_3, 
+        #      y='nama_cabang', 
+        #      x='total_reg_24', 
+        #      title='Total Pendaftar per Cabang',
+        #      labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+        #      text='total_reg_24',)  # Menambahkan label pada setiap batang
+
+        # # Menampilkan grafik di Streamlit
+        # st.plotly_chart(fig)
+        
+        # fig = px.bar(jumlah_siswa_wilayah_4, 
+        #      y='nama_cabang', 
+        #      x='total_reg_24', 
+        #      title='Total Pendaftar per Cabang',
+        #      labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+        #      text='total_reg_24',)  # Menambahkan label pada setiap batang
+
+        # # Menampilkan grafik di Streamlit
+        # st.plotly_chart(fig)
+        
+        # heatmap = make_heatmap(df_reshaped, 'year', 'states', 'population', selected_color_theme)
+        # st.altair_chart(heatmap, use_container_width=True)
+        
+        
+    col = st.columns(2, gap='medium')
+
+    with col[0]:
+                
+        # total_ta_24 = int(jumlah_siswa['total_reg_24'].sum())
+        # total_ta_25 = int(jumlah_siswa['total_reg_25'].sum())
+
+        # st.metric(label='Total Siswa Tahun Ajaran 2024/2025', value=total_ta_24)
+
+        # st.metric(label='Total Siswa Tahun Ajaran 2025/2026', value=total_ta_25)
+        
+        fig = px.bar(jumlah_siswa_wilayah_3, 
+             y='nama_cabang', 
+             x='total_reg_24', 
+             title='Jumlah Siswa di Cabang Wilayah Indonesia Timur',
+             labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+             text='total_reg_24',)  # Menambahkan label pada setiap batang
+
+        # Menampilkan grafik di Streamlit
+        st.plotly_chart(fig)
+
+
+    with col[1]:
+               
+        # choropleth = make_choropleth(df_selected_year, 'states_code', 'population', selected_color_theme)
+        # st.plotly_chart(choropleth, use_container_width=True)
+        
+        fig = px.bar(jumlah_siswa_wilayah_4, 
+             y='nama_cabang', 
+             x='total_reg_24', 
+             title='Jumlah Siswa di Cabang Wilayah Jateng & Jatim',
+             labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+             text='total_reg_24')  # Menambahkan label pada setiap batang
+
+        # Menampilkan grafik di Streamlit
+        st.plotly_chart(fig)    
+
+    # with col3:
+    #     st.markdown('#### Top Cabang')
+
+    #     st.dataframe(df_selected_year_sorted,
+    #                 column_order=("total_reg_, "population"),
+    #                 hide_index=True,
+    #                 width=None,
+    #                 column_config={
+    #                     "states": st.column_config.TextColumn(
+    #                         "Cabang",
+    #                     ),
+    #                     "population": st.column_config.ProgressColumn(
+    #                         "Jumlah Siswa",
+    #                         format="%f",
+    #                         min_value=0,
+    #                         max_value=max(df_selected_year_sorted.population),
+    #                     )}
+    #                 )
+        
+    #     # with st.expander('About', expanded=True):
+    #     #     st.write('''
+    #     #         - Data: [U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html).
+    #     #         - :orange[**Gains/Losses**]: states with high inbound/ outbound migration for selected year
+    #     #         - :orange[**States Migration**]: percent_ge of states with annual inbound/ outbound migration > 50,000
+    #     #         ''')
