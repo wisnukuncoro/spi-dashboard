@@ -73,19 +73,19 @@ st.markdown("""
 df_reshaped = pd.read_csv('data/us-population-2010-2019-reshaped.csv')
 
 
-#######################
+######################
 # Sidebar
-# with st.sidebar:
-#     st.title('SPI Dashboard')
+with st.sidebar:
+    st.title('SPI Dashboard')
     
-#     year_list = list(df_reshaped.year.unique())[::-1]
+    year_list = list(df_reshaped.year.unique())[::-1]
     
-#     selected_year = st.selectbox('Pilih Tahun', year_list)
-#     df_selected_year = df_reshaped[df_reshaped.year == selected_year]
-#     df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
+    selected_year = st.selectbox('Pilih Tahun', year_list)
+    df_selected_year = df_reshaped[df_reshaped.year == selected_year]
+    df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
 
-#     color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
-#     selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
+    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
+    selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
 
 
 #######################
@@ -221,14 +221,14 @@ if jumlah_siswa is not None:
     
     st.write(jumlah_siswa_wilayah_1)
     
-    year_list = list(df_reshaped.year.unique())[::-1]
+    # year_list = list(df_reshaped.year.unique())[::-1]
         
-    selected_year = st.selectbox('Pilih Tahun Ajaran', year_list)
-    df_selected_year = df_reshaped[df_reshaped.year == selected_year]
-    df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
+    # selected_year = st.selectbox('Pilih Tahun Ajaran', year_list)
+    # df_selected_year = df_reshaped[df_reshaped.year == selected_year]
+    # df_selected_year_sorted = df_selected_year.sort_values(by="population", ascending=False)
 
-    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
-    selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
+    # color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
+    # selected_color_theme = st.selectbox('Pilih Tema Warna', color_theme_list)
     
     st.markdown('#### Jumlah Siswa di Seluruh Cabang Edulab')
         
@@ -243,7 +243,7 @@ if jumlah_siswa is not None:
 
         # st.metric(label='Total Siswa Tahun Ajaran 2025/2026', value=total_ta_25)
         
-        fig = px.bar(jumlah_siswa_wilayah_2, 
+        fig = px.bar(jumlah_siswa_wilayah_1, 
              y='nama_cabang', 
              x='total_reg_24', 
              title='Jumlah Siswa di Cabang Wilayah Jawa Barat',
@@ -259,7 +259,7 @@ if jumlah_siswa is not None:
         # choropleth = make_choropleth(df_selected_year, 'states_code', 'population', selected_color_theme)
         # st.plotly_chart(choropleth, use_container_width=True)
         
-        fig = px.bar(jumlah_siswa_wilayah_1, 
+        fig = px.bar(jumlah_siswa_wilayah_2, 
              y='nama_cabang', 
              x='total_reg_24', 
              title='Jumlah Siswa di Cabang Wilayah Sumatera & Kalimantan',
