@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import altair as alt
 import plotly.express as px
-  
+ 
 ####################
 # Page configuration
 st.set_page_config(
@@ -77,38 +77,47 @@ branch_region_4 = pd.read_csv('data/branch_region_4.csv', delimiter=';')
 #######################
 # Dashboard Main Panel
 
-if st.session_state['file_uploaded'] is not False:
-    jumlah_siswa = st.session_state['jumlah_siswa']
+try:
+    num_of_students = st.session_state['num_of_students']
 
-    jumlah_siswa_wilayah_1 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_1['kode_cabang'])]
-    jumlah_siswa_wilayah_2 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_2['kode_cabang'])]
-    jumlah_siswa_wilayah_3 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_3['kode_cabang'])]
-    jumlah_siswa_wilayah_4 = jumlah_siswa[jumlah_siswa['kode_cabang'].isin(branch_region_4['kode_cabang'])]
-
-    st.metric(label='Total Siswa Tahun Ajaran 2024/2025', value=int(jumlah_siswa['total_reg_24'].sum()))
-    st.metric(label='Total Siswa Tahun Ajaran 2025/2026', value=int(jumlah_siswa['total_reg_25'].sum()))
+    num_of_students_region_1 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_1['kode_cabang'])]
+    num_of_students_region_2 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_2['kode_cabang'])]
+    num_of_students_region_3 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_3['kode_cabang'])]
+    num_of_students_region_4 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_4['kode_cabang'])]
+    
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['date'] + '**')
+    st.text("")
+     
+    col = st.columns(2, gap='medium')
+    
+    with col[0]:
+        st.metric(label='Total Siswa TA 24/25 (TA Berjalan)', value=int(num_of_students['total_reg_24'].sum()), border=True)
+        st.metric(label='Total Siswa Private TA 24/25 (TA Berjalan)', value=int(num_of_students['private_24'].sum()), border=True)
+        
+    with col[1]:
+        st.metric(label='Total Siswa TA 25/26', value=int(num_of_students['total_reg_25'].sum()), border=True)
+        st.metric(label='Total Siswa Private TA 25/26', value=0, border=True)
         
     col = st.columns(2, gap='medium')
 
     with col[0]:
         
-        fig = px.bar(jumlah_siswa_wilayah_1, 
+        fig = px.bar(num_of_students_region_1, 
             y='nama_cabang', 
             x='total_reg_24', 
             title='Wilayah Jawa Barat TA 24/25',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Siswa'},
             text='total_reg_24',)
 
         st.plotly_chart(fig)
 
-
     with col[1]:
                      
-        fig = px.bar(jumlah_siswa_wilayah_1, 
+        fig = px.bar(num_of_students_region_1, 
             y='nama_cabang', 
             x='total_reg_25', 
             title='Wilayah Jawa Barat TA 25/26',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Siswa'},
             text='total_reg_25')
 
         st.plotly_chart(fig)
@@ -118,22 +127,22 @@ if st.session_state['file_uploaded'] is not False:
 
     with col[0]:
         
-        fig = px.bar(jumlah_siswa_wilayah_2, 
+        fig = px.bar(num_of_students_region_2, 
             y='nama_cabang', 
             x='total_reg_24', 
             title='Wilayah Sumatera & Kalimantan TA 24/25',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Siswa'},
             text='total_reg_24',)
 
         st.plotly_chart(fig)
 
     with col[1]:
         
-        fig = px.bar(jumlah_siswa_wilayah_2, 
+        fig = px.bar(num_of_students_region_2, 
             y='nama_cabang', 
             x='total_reg_25', 
             title='Wilayah Sumatera & Kalimantan TA 25/26',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Siswa'},
             text='total_reg_25') 
 
         st.plotly_chart(fig)    
@@ -143,11 +152,11 @@ if st.session_state['file_uploaded'] is not False:
 
     with col[0]:
         
-        fig = px.bar(jumlah_siswa_wilayah_3, 
+        fig = px.bar(num_of_students_region_3, 
             y='nama_cabang', 
             x='total_reg_24', 
             title='Wilayah Indonesia Timur TA 24/25',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Siswa'},
             text='total_reg_24',)
 
         st.plotly_chart(fig)
@@ -155,11 +164,11 @@ if st.session_state['file_uploaded'] is not False:
 
     with col[1]:
                      
-        fig = px.bar(jumlah_siswa_wilayah_3, 
+        fig = px.bar(num_of_students_region_3, 
             y='nama_cabang', 
             x='total_reg_25', 
             title='Wilayah Indonesia Timur TA 25/26',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Siswa'},
             text='total_reg_25')
 
         st.plotly_chart(fig)
@@ -169,25 +178,25 @@ if st.session_state['file_uploaded'] is not False:
 
     with col[0]:
         
-        fig = px.bar(jumlah_siswa_wilayah_4, 
+        fig = px.bar(num_of_students_region_4, 
             y='nama_cabang', 
             x='total_reg_24', 
             title='Wilayah Jateng & Jatim TA 24/25',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_24': 'Total Siswa'},
             text='total_reg_24',)
 
         st.plotly_chart(fig)
 
     with col[1]:
         
-        fig = px.bar(jumlah_siswa_wilayah_4, 
+        fig = px.bar(num_of_students_region_4, 
             y='nama_cabang', 
             x='total_reg_25', 
             title='Wilayah Jateng & Jatim TA 25/26',
-            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Pendaftar'},
+            labels={'nama_cabang': 'Nama Cabang', 'total_reg_25': 'Total Siswa'},
             text='total_reg_25') 
 
         st.plotly_chart(fig) 
         
-else:
+except:
     st.markdown('Silakan upload file pada menu **Welcome** terlebih dahulu.')

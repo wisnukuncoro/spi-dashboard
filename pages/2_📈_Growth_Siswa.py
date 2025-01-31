@@ -88,25 +88,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def separate_by_year(data, columns, column_name):
-  data = pd.concat([data.iloc[:,0], data.iloc[:,27], data.iloc[:, columns]], axis=1)
+  data = pd.concat([data.iloc[:,0], data.iloc[:,26], data.iloc[:, columns]], axis=1)
   data.columns = column_name
   return data
 
+branch_list = {
+    'branch_list_all': pd.read_csv('data/branch_list.csv', delimiter=';'),
+    'region_1': pd.read_csv('data/branch_region_1.csv', delimiter=';'),
+    'region_2': pd.read_csv('data/branch_region_2.csv', delimiter=';'),
+    'region_3': pd.read_csv('data/branch_region_3.csv', delimiter=';'),
+    'region_4': pd.read_csv('data/branch_region_4.csv', delimiter=';')
+}
 
-branch_list = pd.read_csv('data/branch_list.csv', delimiter=';')
-branch_region_1 = pd.read_csv('data/branch_region_1.csv', delimiter=';')
-branch_region_2 = pd.read_csv('data/branch_region_2.csv', delimiter=';')
-branch_region_3 = pd.read_csv('data/branch_region_3.csv', delimiter=';')
-branch_region_4 = pd.read_csv('data/branch_region_4.csv', delimiter=';')
-
-
-if st.session_state['file_uploaded'] is not False:
+try:
     growth_siswa = st.session_state['growth_siswa']
     
-    year_list = list([2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025])[::-1]
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['date'] + '**')
+    st.text("")
+       
+    year_list = list([2019, 2020, 2021, 2022, 2023, 2024, 2025])[::-1]
     selected_year = st.selectbox('Pilih Tahun', year_list)
-    year_list.remove(selected_year)
-    compared_year = st.selectbox('Pilih Tahun Perbandingan', year_list)
+    del year_list[:year_list.index(selected_year)+1]
+    year_list.append(2018)
+    compared_year = st.selectbox('Pilih Tahun Perbandingan', year_list, index=year_list.index(selected_year-1))
     
     data = {
       2018: separate_by_year(growth_siswa, slice(1,4), ['Kode Cabang', 'Nama Cabang', 'TA 17/18', 'TA 18/20', 'Bulanan']),
@@ -115,27 +119,60 @@ if st.session_state['file_uploaded'] is not False:
       2021: separate_by_year(growth_siswa, slice(10,13), ['Kode Cabang', 'Nama Cabang', 'TA 21/22', 'TA 22/23', 'Bulanan']),
       2022: separate_by_year(growth_siswa, slice(13,16), ['Kode Cabang', 'Nama Cabang', 'TA 21/22', 'TA 22/23', 'Bulanan']),
       2023: separate_by_year(growth_siswa, slice(16,20), ['Kode Cabang', 'Nama Cabang', 'TA 22/23', 'TA 23/24', 'TA 24/25', 'Bulanan']),
-      2024: separate_by_year(growth_siswa, slice(20,24), ['Kode Cabang', 'Nama Cabang', 'TA 23/24', 'TA 24/25', 'TA 25/26', 'Bulanan']),
-      2025: separate_by_year(growth_siswa, slice(24,27), ['Kode Cabang', 'Nama Cabang', 'TA 24/25', 'TA 25/26', 'Bulanan']),
+      2024: separate_by_year(growth_siswa, slice(20,23), ['Kode Cabang', 'Nama Cabang', 'TA 23/24', 'TA 24/25', 'Bulanan']),
+      2025: separate_by_year(growth_siswa, slice(23,26), ['Kode Cabang', 'Nama Cabang', 'TA 24/25', 'TA 25/26', 'Bulanan']),
     }
+    
+    merged_data = pd.merge(data[selected_year], data[compared_year], on='Kode Cabang', suffixes=('_1', '_2'))
+    
+    growth_branches = merged_data[merged_data['Bulanan_1'] > merged_data['Bulanan_2']]
+     
+    st.text("")
+    
+    def explanation_by_region(data, no_region, region_name):
+        
+        data = data[data['Kode Cabang'].isin(branch_list[f"region_{no_region}"]['kode_cabang'])] 
+        data = data['Nama Cabang_1'].tolist()
+        list_growth_branches = ', '.join(data) + '.'
+        
+        st.markdown(f"""
+        Untuk Wilayah {region_name}, terdapat **{len(data)} cabang** yang memiliki perolehan bulanan lebih besar dari tahun {compared_year}, yaitu {list_growth_branches}
+        """)
+        
+    st.markdown(f"""
+    Per tanggal {st.session_state['date'][:-4]} {selected_year}, total cabang yang memiliki perolehan bulanan lebih besar dari tahun {compared_year} adalah **{len(growth_branches)} cabang**.
+    """)
+    explanation_by_region(growth_branches, 1, 'Jawa Barat')
+    explanation_by_region(growth_branches, 2, 'Sumatera & Kalimantan')
+    explanation_by_region(growth_branches, 3, 'Indonesia Timur')
+    explanation_by_region(growth_branches, 4, 'Jateng & Jatim')
+    st.text("")
+    
     
     # df_heatmap = growth_siswa
     # df_heatmap = growth_siswa
     
     # heatmap = make_heatmap(df_heatmap, 'tahun', 'nama_cabang', 'bulanan', selected_color_theme)
+    
+    # st.table(pd.concat([data[selected_year], data[compared_year]], axis=1))
+    
+    # st.bar_chart(pd.concat([data[selected_year], data[compared_year]]),
+    #              x='Nama Cabang',
+    #              y='Bulanan',
+    #              horizontal=True)
         
     col = st.columns(2, gap='medium')
 
     with col[0]:
         
-        st.markdown(f'#### {selected_year}')
-        st.write(data[selected_year])
+        st.markdown(f'#### {compared_year}')
+        st.table(data[compared_year])
 
     with col[1]:
         
-        st.markdown(f'#### {compared_year}')  
-        st.write(data[compared_year])
+        st.markdown(f'#### {selected_year}')  
+        st.table(data[selected_year])
     
         
-else:
+except:
     st.markdown('Silakan upload file pada menu **Welcome** terlebih dahulu.')
