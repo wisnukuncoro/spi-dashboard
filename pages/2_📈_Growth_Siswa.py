@@ -103,7 +103,7 @@ branch_list = {
 try:
     growth_siswa = st.session_state['growth_siswa']
     
-    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['date'] + '**')
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['long_date'] + '**')
     st.text("")
        
     year_list = list([2019, 2020, 2021, 2022, 2023, 2024, 2025])[::-1]
@@ -123,6 +123,8 @@ try:
       2025: separate_by_year(growth_siswa, slice(23,26), ['Kode Cabang', 'Nama Cabang', 'TA 24/25', 'TA 25/26', 'Bulanan']),
     }
     
+    
+    
     merged_data = pd.merge(data[selected_year], data[compared_year], on='Kode Cabang', suffixes=('_1', '_2'))
     
     growth_branches = merged_data[merged_data['Bulanan_1'] > merged_data['Bulanan_2']]
@@ -131,16 +133,24 @@ try:
     
     def explanation_by_region(data, no_region, region_name):
         
-        data = data[data['Kode Cabang'].isin(branch_list[f"region_{no_region}"]['kode_cabang'])] 
-        data = data['Nama Cabang_1'].tolist()
-        list_growth_branches = ', '.join(data) + '.'
-        
-        st.markdown(f"""
-        Untuk Wilayah {region_name}, terdapat **{len(data)} cabang** yang memiliki perolehan bulanan lebih besar dari tahun {compared_year}, yaitu {list_growth_branches}
-        """)
+        try:
+            data = data[data['Kode Cabang'].isin(branch_list[f"region_{no_region}"]['kode_cabang'])] 
+            data = data['Nama Cabang_1'].tolist()
+            if len(data) > 1:
+                list_growth_branches = ', '.join(data[:-1]) + ', dan ' + data[-1] + "."
+            else:
+                list_growth_branches = f"{data[0]}."
+            
+            st.markdown(f"""
+            Untuk Wilayah {region_name}, terdapat **{len(data)} cabang** yang memiliki perolehan bulanan lebih besar dari tahun {compared_year}, yaitu {list_growth_branches}
+            """)
+        except:
+            st.markdown(f"""
+            Untuk Wilayah {region_name}, tidak terdapat cabang yang memiliki perolehan bulanan lebih besar dari tahun {compared_year}.
+            """)
         
     st.markdown(f"""
-    Per tanggal {st.session_state['date'][:-4]} {selected_year}, total cabang yang memiliki perolehan bulanan lebih besar dari tahun {compared_year} adalah **{len(growth_branches)} cabang**.
+    Per tanggal {st.session_state['long_date'][:-4]} {selected_year}, total cabang yang memiliki perolehan bulanan lebih besar dari tahun {compared_year} adalah **{len(growth_branches)} cabang**.
     """)
     explanation_by_region(growth_branches, 1, 'Jawa Barat')
     explanation_by_region(growth_branches, 2, 'Sumatera & Kalimantan')
@@ -164,14 +174,14 @@ try:
     col = st.columns(2, gap='medium')
 
     with col[0]:
-        
+        data[compared_year].index = data[compared_year].index + 1
         st.markdown(f'#### {compared_year}')
-        st.table(data[compared_year])
+        st.table(data[compared_year].iloc[:, 1:])
 
     with col[1]:
-        
+        data[selected_year].index = data[selected_year].index + 1
         st.markdown(f'#### {selected_year}')  
-        st.table(data[selected_year])
+        st.table(data[selected_year].iloc[:, 1:])
     
         
 except:

@@ -85,7 +85,7 @@ try:
     num_of_students_region_3 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_3['kode_cabang'])]
     num_of_students_region_4 = num_of_students[num_of_students['kode_cabang'].isin(branch_region_4['kode_cabang'])]
     
-    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['date'] + '**')
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['long_date'] + '**')
     st.text("")
      
     col = st.columns(2, gap='medium')

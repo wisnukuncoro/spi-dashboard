@@ -73,58 +73,107 @@ branch_region_2 = pd.read_csv('data/branch_region_2.csv', delimiter=';')
 branch_region_3 = pd.read_csv('data/branch_region_3.csv', delimiter=';')
 branch_region_4 = pd.read_csv('data/branch_region_4.csv', delimiter=';')
 
+try:
+    siswa = st.session_state['siswa']
+    siswa.fillna(0, inplace=True)
+
+    siswa_wilayah_1 = siswa[siswa['kode_cabang'].isin(branch_region_1['kode_cabang'])]
+    siswa_wilayah_2 = siswa[siswa['kode_cabang'].isin(branch_region_2['kode_cabang'])]
+    siswa_wilayah_3 = siswa[siswa['kode_cabang'].isin(branch_region_3['kode_cabang'])]
+    siswa_wilayah_4 = siswa[siswa['kode_cabang'].isin(branch_region_4['kode_cabang'])]
+
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['long_date'] + '**')
+    st.text("")
+        
+    col = st.columns(3, gap='medium')
+
+    with col[0]:
+        st.metric(label='Perolehan Siswa Bulan Ini', value=int(siswa['hasil'].sum()), border=True)
+    with col[1]:
+        st.metric(label='Target Perolehan Siswa', value=int(siswa['target'].sum()), border=True)
+    with col[2]:
+        x = int(siswa['hasil'].sum()) / int(siswa['target'].sum()) * 100
+        st.metric(label='Persentase', value=f"{x:.2f} %", border=True)
+        
+    # col = st.columns(2, gap='medium')
+
+    # with col[0]:
+    #     value = f"{max(siswa['percentage']*100):.2f}"
+    #     cabang = siswa[siswa['percentage'] == max(siswa['percentage'])]
+    #     st.metric(label='Cabang dengan persentase perolehan tertinggi terhadap target', value=f"{cabang['nama_cabang'].iloc[0]}: {value} %", border=True)
+    # with col[1]:
+    #     value = max(siswa['hasil'])
+    #     cabang = siswa[siswa['hasil'] == max(siswa['hasil'])]
+    #     st.metric(label='Cabang dengan perolehan pertinggi', value=f"{cabang['nama_cabang'].iloc[0]}: {value} siswa", border=True)
 
 
-siswa = st.session_state['siswa']
-siswa.fillna(0, inplace=True)
+    daily_students_gain = []
 
-siswa_wilayah_1 = siswa[siswa['kode_cabang'].isin(branch_region_1['kode_cabang'])]
-siswa_wilayah_2 = siswa[siswa['kode_cabang'].isin(branch_region_2['kode_cabang'])]
-siswa_wilayah_3 = siswa[siswa['kode_cabang'].isin(branch_region_3['kode_cabang'])]
-siswa_wilayah_4 = siswa[siswa['kode_cabang'].isin(branch_region_4['kode_cabang'])]
+    num_of_dates = [i for i in range(1, 32)]
 
-st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['date'] + '**')
-st.text("")
+    for i in range(31):
+        daily_students_gain.append(siswa.iloc[:,i+4].sum())  
+
+    daily_students_gain = pd.DataFrame({'tanggal': num_of_dates,
+                                        'hasil': daily_students_gain
+    })
+
+    date = int(st.session_state['date'])
+
+    # Membagi daftar ke dalam 3 bagian
+    col = st.columns(2)
+
+    with col[0]:
+        st.text("")
+        st.markdown('**Perolehan siswa Edulab pada tanggal ' + st.session_state['long_date'] + '**')
+
+        list_students_gain = pd.concat([siswa.iloc[:, date+2], siswa.iloc[:, -1]], axis=1)
+        list_students_gain = list_students_gain[list_students_gain.iloc[:,0] != 0]
+
+        explanation = []
+        for i in range(len(list_students_gain)):
+            explanation.append(f'{int(list_students_gain.iloc[i, 0])} siswa di cabang {list_students_gain.iloc[i, 1]}')
+            
+        for i in explanation:
+            st.markdown(f"{i}")
+            
+    with col[1]:
+        st.text("")
+        st.markdown('**Perolehan siswa Edulab pada tanggal ' + st.session_state['long_date'] + '**')
+
+        list_students_gain = pd.concat([siswa.iloc[:, date+3], siswa.iloc[:, -1]], axis=1)
+        list_students_gain = list_students_gain[list_students_gain.iloc[:,0] != 0]
+
+        explanation = []
+        for i in range(len(list_students_gain)):
+            explanation.append(f'{int(list_students_gain.iloc[i, 0])} siswa di cabang {list_students_gain.iloc[i, 1]}')
+            
+        for i in explanation:
+            st.markdown(f"{i}")     
+
+    # # Membagi daftar ke dalam 3 bagian
+    # kolom1, kolom2 = st.columns(2)
+
+    # # Looping untuk mengisi setiap kolom secara bergantian
+    # for i, nama in enumerate(explanation):
+    #     if i % 2 == 0:
+    #         kolom1.markdown(f"- {nama}")
+    #     elif i % 2 == 1:
+    #         kolom2.markdown(f"- {nama}")
+
+
+
+
+        
+    fig = px.bar(daily_students_gain, 
+            y='hasil', 
+            x='tanggal', 
+            title=f"Perolehan Siswa Harian Edulab pada Bulan {st.session_state['month']}{st.session_state['year']}",
+            labels={'hasil': 'Perolehan Siswa', 'tanggal': 'Tanggal'},
+            text='hasil')
+
+    st.plotly_chart(fig)
     
-col = st.columns(3, gap='medium')
-
-with col[0]:
-    st.metric(label='Perolehan Siswa Bulan Ini', value=int(siswa['hasil'].sum()), border=True)
-with col[1]:
-    st.metric(label='Target Perolehan Siswa', value=int(siswa['target'].sum()), border=True)
-with col[2]:
-    x = int(siswa['hasil'].sum()) / int(siswa['target'].sum()) * 100
-    st.metric(label='Persentase', value=f"{x:.2f} %", border=True)
-    
-col = st.columns(2, gap='medium')
-
-with col[0]:
-    value = f"{max(siswa['percentage']*100):.2f}"
-    cabang = siswa[siswa['percentage'] == max(siswa['percentage'])]
-    st.metric(label='Cabang dengan persentase perolehan tertinggi terhadap target', value=f"{cabang['nama_cabang'].iloc[0]}: {value} %", border=True)
-with col[1]:
-    value = max(siswa['hasil'])
-    cabang = siswa[siswa['hasil'] == max(siswa['hasil'])]
-    st.metric(label='Cabang dengan perolehan pertinggi', value=f"{cabang['nama_cabang'].iloc[0]}: {value} siswa", border=True)
-
-
-daily_students_gain = []
-
-num_of_dates = [i for i in range(1, 32)]
-
-for i in range(31):
-    daily_students_gain.append(siswa.iloc[:,i+4].sum())  
-
-daily_students_gain = pd.DataFrame({'tanggal': num_of_dates,
-                                    'hasil': daily_students_gain
-})
-    
-fig = px.bar(daily_students_gain, 
-        y='hasil', 
-        x='tanggal', 
-        title='Perolehan Siswa Harian Edulab',
-        labels={'hasil': 'Perolehan Siswa', 'tanggal': 'Tanggal'},
-        text='hasil')
-
-st.plotly_chart(fig)
+except:           
+    st.markdown('Silakan upload file pada menu **Welcome** terlebih dahulu.')
         

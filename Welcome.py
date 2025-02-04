@@ -28,9 +28,17 @@ if excel is not None:
     
     all_sheets = pd.read_excel(excel, sheet_name=None)
 
-    date = load_data(all_sheets, 'Jumlah Siswa', slice(0,1), slice(3,4)).iloc[0,0]
+    long_date = load_data(all_sheets, 'Jumlah Siswa', slice(0,1), slice(3,4)).iloc[0,0]
+    year = long_date[-4:]
     
-    if date[-4:] != '2025':
+    if long_date[1] == ' ':
+        date = long_date[0]
+        month = long_date[2:-4]
+    else:
+        date = long_date[0:2]
+        month = long_date[3:-4]
+    
+    if long_date[-4:] != '2025':
         st.markdown("""
         **Error!**
         Web ini hanya dapat memproses jika data yang diinput merupakan data tahun 2025.           
@@ -78,8 +86,10 @@ if excel is not None:
         ### Page 4 Data Preparation
         revenue = load_data(all_sheets, 'Revenue', slice(64, 67), slice(4, 6))
         
-            
         st.session_state['date'] = date
+        st.session_state['month'] = month 
+        st.session_state['year'] = year     
+        st.session_state['long_date'] = long_date
         st.session_state['num_of_students'] = num_of_students
         st.session_state['growth_siswa'] = growth_siswa
         st.session_state['siswa'] = siswa

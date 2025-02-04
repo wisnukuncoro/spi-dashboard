@@ -78,15 +78,26 @@ try:
     revenue = st.session_state['revenue']
     revenue.columns = ['label', 'value']
     
-    fig = px.bar(revenue, 
-            y='value', 
-            x='label', 
-            title='Perolehan Siswa Harian Edulab',
-            text='value')
+    st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['long_date'] + '**')
+    st.text("")
+        
+    col = st.columns(2, gap='medium')
 
-    st.plotly_chart(fig)
+    with col[0]:
+        angka = revenue.iloc[0,1]
+        st.metric(label='Revenue Versi Cabang', value="Rp {:,.0f}".format(angka).replace(",", "."), border=True)
+    with col[1]:
+        angka = revenue.iloc[1,1] / revenue.iloc[2,1] * 100
+        st.metric(label='Persentase Ketercapaian', value=f"{angka:.2f} %", border=True)
     
-    st.write(revenue)
+    col = st.columns(2, gap='medium')
+    
+    with col[0]:
+        angka = revenue.iloc[1,1]
+        st.metric(label='Revenue Versi Finance', value="Rp {:,.0f}".format(angka).replace(",", "."), border=True)
+    with col[1]:
+        angka = revenue.iloc[2,1]
+        st.metric(label='Target', value="Rp {:,.0f}".format(angka).replace(",", "."), border=True)
         
 except:           
     st.markdown('Silakan upload file pada menu **Welcome** terlebih dahulu.')
