@@ -62,20 +62,25 @@ if excel is not None:
         
         ### Page 2 Data Preparation
         
-        growth_siswa = load_data(all_sheets, 'Growth Siswa', slice(2, None), slice(3, 31))
-        growth_siswa.drop(growth_siswa.columns[[1, 23]], axis=1, inplace=True)
-        growth_siswa.columns = ['kode_cabang', 'ta_17_18_2018', 'ta_18_19_2018', 'bulanan_2018', 'ta_18_19_2019', 'ta_19_20_2019', 'bulanan_2019', 'ta_19_20_2020', 'ta_20_21_2020', 'bulanan_2020', 'ta_21_22_2021', 'ta_22_23_2021', 'bulanan_2021', 'ta_21_22_2022', 'ta_22_23_2022', 'bulanan_2022', 'ta_22_23_2023', 'ta_23_24_2023', 'ta_24_25_2023', 'bulanan_2023', 'ta_23_24_2024', 'ta_24_25_2024', 'bulanan_2024', 'ta_24_25_2025', 'ta_25_26_2025', 'bulanan']
+        growth_siswa = load_data(all_sheets, 'Growth Siswa', slice(2, None), slice(3, 29))
+        growth_siswa.drop(growth_siswa.columns[1], axis=1, inplace=True)
+        growth_siswa.columns = ['kode_cabang', 'ta_17_18_2018', 'ta_18_19_2018', 'bulanan_2018', 'ta_18_19_2019', 'ta_19_20_2019', 'bulanan_2019', 'ta_19_20_2020', 'ta_20_21_2020', 'bulanan_2020', 'ta_21_22_2021', 'ta_22_23_2021', 'bulanan_2021', 'ta_21_22_2022', 'ta_22_23_2022', 'bulanan_2022', 'ta_22_23_2023', 'ta_23_24_2023', 'bulanan_2023', 'ta_23_24_2024', 'ta_24_25_2024', 'bulanan_2024', 'ta_24_25_2025', 'ta_25_26_2025', 'bulanan']
         
         growth_siswa = filter_active_branch(growth_siswa)
         growth_siswa = pd.merge(growth_siswa, branch_list, on='kode_cabang')
         
         
         ### Page 3 Data Preparation
+        if month == 'Januari' or month == 'Maret' or month == 'Mei' or month == 'Juli' or month == 'Agustus' or month == 'Oktober' or month == 'Desember':
+            list_date = [str(i) for i in range(1, 32)]
+        elif month == 'April' or month == 'Juni' or month == 'September' or month == 'November':
+            list_date = [str(i) for i in range(1, 31)]
+        else:
+            list_date = [str(i) for i in range(1, 29)]
                
-        siswa = load_data(all_sheets, 'Siswa ', slice(2, None), slice(1, 38))
-        siswa.drop(siswa.columns[[1,5]], axis=1, inplace=True)
-        
-        list_date = [str(i) for i in range(1, 32)]
+        siswa = load_data(all_sheets, 'Siswa ', slice(2, None), slice(1, len(list_date)+8))
+        siswa.drop(siswa.columns[[1,2,6]], axis=1, inplace=True)
+                    
         columns_siswa = ['kode_cabang', 'hasil', 'target', 'percentage']
         
         siswa.columns = columns_siswa + list_date
@@ -93,20 +98,5 @@ if excel is not None:
         st.session_state['num_of_students'] = num_of_students
         st.session_state['growth_siswa'] = growth_siswa
         st.session_state['siswa'] = siswa
+        st.session_state['num_of_dates'] = len(list_date)
         st.session_state['revenue'] = revenue
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    
-    
-
-      
-  

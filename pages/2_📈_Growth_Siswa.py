@@ -88,7 +88,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def separate_by_year(data, columns, column_name):
-  data = pd.concat([data.iloc[:,0], data.iloc[:,26], data.iloc[:, columns]], axis=1)
+  data = pd.concat([data.iloc[:,0], data.iloc[:,25], data.iloc[:, columns]], axis=1)
   data.columns = column_name
   return data
 
@@ -118,9 +118,9 @@ try:
       2020: separate_by_year(growth_siswa, slice(7,10), ['Kode Cabang', 'Nama Cabang', 'TA 19/20', 'TA 20/21', 'Bulanan']),
       2021: separate_by_year(growth_siswa, slice(10,13), ['Kode Cabang', 'Nama Cabang', 'TA 21/22', 'TA 22/23', 'Bulanan']),
       2022: separate_by_year(growth_siswa, slice(13,16), ['Kode Cabang', 'Nama Cabang', 'TA 21/22', 'TA 22/23', 'Bulanan']),
-      2023: separate_by_year(growth_siswa, slice(16,20), ['Kode Cabang', 'Nama Cabang', 'TA 22/23', 'TA 23/24', 'TA 24/25', 'Bulanan']),
-      2024: separate_by_year(growth_siswa, slice(20,23), ['Kode Cabang', 'Nama Cabang', 'TA 23/24', 'TA 24/25', 'Bulanan']),
-      2025: separate_by_year(growth_siswa, slice(23,26), ['Kode Cabang', 'Nama Cabang', 'TA 24/25', 'TA 25/26', 'Bulanan']),
+      2023: separate_by_year(growth_siswa, slice(16,19), ['Kode Cabang', 'Nama Cabang', 'TA 22/23', 'TA 23/24', 'Bulanan']),
+      2024: separate_by_year(growth_siswa, slice(19,22), ['Kode Cabang', 'Nama Cabang', 'TA 23/24', 'TA 24/25', 'Bulanan']),
+      2025: separate_by_year(growth_siswa, slice(22,25), ['Kode Cabang', 'Nama Cabang', 'TA 24/25', 'TA 25/26', 'Bulanan']),
     }
     
     

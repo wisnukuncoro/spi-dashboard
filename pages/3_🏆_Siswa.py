@@ -106,12 +106,11 @@ try:
     #     cabang = siswa[siswa['hasil'] == max(siswa['hasil'])]
     #     st.metric(label='Cabang dengan perolehan pertinggi', value=f"{cabang['nama_cabang'].iloc[0]}: {value} siswa", border=True)
 
-
     daily_students_gain = []
 
-    num_of_dates = [i for i in range(1, 32)]
+    num_of_dates = [i for i in range(1, st.session_state['num_of_dates']+1)]
 
-    for i in range(31):
+    for i in range(len(num_of_dates)):
         daily_students_gain.append(siswa.iloc[:,i+4].sum())  
 
     daily_students_gain = pd.DataFrame({'tanggal': num_of_dates,
@@ -119,13 +118,14 @@ try:
     })
 
     date = int(st.session_state['date'])
+    month = st.session_state['month']
+    year = st.session_state['year']
 
-    # Membagi daftar ke dalam 3 bagian
     col = st.columns(2)
 
     with col[0]:
         st.text("")
-        st.markdown('**Perolehan siswa Edulab pada tanggal ' + st.session_state['long_date'] + '**')
+        st.markdown(f'**Perolehan siswa Edulab pada tanggal {date-1} {month} {year}**')
 
         list_students_gain = pd.concat([siswa.iloc[:, date+2], siswa.iloc[:, -1]], axis=1)
         list_students_gain = list_students_gain[list_students_gain.iloc[:,0] != 0]
