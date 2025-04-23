@@ -102,10 +102,55 @@ branch_list = {
 
 try:
     growth_siswa = st.session_state['growth_siswa']
+    rasio = st.session_state['rasio']
     
     st.markdown('***Data dibawah ini merupakan data per ' + st.session_state['long_date'] + '**')
     st.text("")
-       
+    
+    col = st.columns(8)
+    
+    with col[0]:
+        
+        st.metric(label='Bulanan 2018', value=rasio['bulanan'].loc['bulanan_2018'], border=True)
+        st.metric(label='Jumlah Cabang 2018', value=int(rasio['jumlah_cabang'].loc['bulanan_2018']), border=True)
+        st.metric(label='Rasio 2018', value=f"{rasio['rasio'].loc['bulanan_2018']:.2f}", border=True)
+        
+    with col[1]:
+        st.metric(label='Bulanan 2019', value=rasio['bulanan'].loc['bulanan_2019'], border=True)
+        st.metric(label='Jumlah Cabang 2019', value=int(rasio['jumlah_cabang'].loc['bulanan_2019']), border=True)
+        st.metric(label='Rasio 2019', value=f"{rasio['rasio'].loc['bulanan_2019']:.2f}", border=True)
+        
+    with col[2]:
+        st.metric(label='Bulanan 2020', value=rasio['bulanan'].loc['bulanan_2020'], border=True)
+        st.metric(label='Jumlah Cabang 2020', value=int(rasio['jumlah_cabang'].loc['bulanan_2020']), border=True)
+        st.metric(label='Rasio 2020', value=f"{rasio['rasio'].loc['bulanan_2020']:.2f}", border=True)
+        
+    with col[3]:
+        st.metric(label='Bulanan 2021', value=rasio['bulanan'].loc['bulanan_2021'], border=True)
+        st.metric(label='Jumlah Cabang 2021', value=int(rasio['jumlah_cabang'].loc['bulanan_2021']), border=True)
+        st.metric(label='Rasio 2021', value=f"{rasio['rasio'].loc['bulanan_2021']:.2f}", border=True)
+        
+    with col[4]:
+        st.metric(label='Bulanan 2022', value=rasio['bulanan'].loc['bulanan_2022'], border=True)
+        st.metric(label='Jumlah Cabang 2022', value=int(rasio['jumlah_cabang'].loc['bulanan_2022']), border=True)
+        st.metric(label='Rasio 2022', value=f"{rasio['rasio'].loc['bulanan_2022']:.2f}", border=True)
+        
+    with col[5]:
+        st.metric(label='Bulanan 2023', value=rasio['bulanan'].loc['bulanan_2023'], border=True)
+        st.metric(label='Jumlah Cabang 2023', value=int(rasio['jumlah_cabang'].loc['bulanan_2023']), border=True)
+        st.metric(label='Rasio 2023', value=f"{rasio['rasio'].loc['bulanan_2023']:.2f}", border=True)
+        
+    with col[6]:
+        st.metric(label='Bulanan 2024', value=rasio['bulanan'].loc['bulanan_2024'], border=True)
+        st.metric(label='Jumlah Cabang 2024', value=int(rasio['jumlah_cabang'].loc['bulanan_2024']), border=True)
+        st.metric(label='Rasio 2024', value=f"{rasio['rasio'].loc['bulanan_2024']:.2f}", border=True)
+        
+    with col[7]:
+        st.metric(label='Bulanan 2025', value=rasio['bulanan'].loc['bulanan'], border=True)
+        st.metric(label='Jumlah Cabang 2025', value=int(rasio['jumlah_cabang'].loc['bulanan']), border=True)
+        st.metric(label='Rasio 2025', value=f"{rasio['rasio'].loc['bulanan']:.2f}", border=True)
+
+    st.text("")   
     year_list = list([2019, 2020, 2021, 2022, 2023, 2024, 2025])[::-1]
     selected_year = st.selectbox('Pilih Tahun', year_list)
     del year_list[:year_list.index(selected_year)+1]

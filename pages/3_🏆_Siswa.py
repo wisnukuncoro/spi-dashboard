@@ -95,6 +95,8 @@ try:
         x = int(siswa['hasil'].sum()) / int(siswa['target'].sum()) * 100
         st.metric(label='Persentase', value=f"{x:.2f} %", border=True)
         
+    # streamlit run Welcome.py    
+        
     # col = st.columns(2, gap='medium')
 
     # with col[0]:
